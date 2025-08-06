@@ -131,6 +131,7 @@ export default function TestLabPage() {
     if (!selectedScript || !project) return;
 
     let issueId = selectedIssue;
+    let updatedProject = { ...project };
     
     // Create new issue if needed
     if (showNewIssueForm && newIssueTitle.trim()) {
@@ -144,17 +145,15 @@ export default function TestLabPage() {
         createdAt: new Date().toISOString()
       };
 
-      const updatedProject = {
+      updatedProject = {
         ...project,
         issues: [...(project.issues || []), newIssue]
       };
-
-      StorageManager.updateProject(project.id, updatedProject);
       issueId = newIssue.id;
     }
 
     // Update script with issue
-    const updatedScripts = project.importedScripts?.map(script =>
+    const updatedScripts = updatedProject.importedScripts?.map(script =>
       script.id === selectedScript.id
         ? {
             ...script,
@@ -166,10 +165,13 @@ export default function TestLabPage() {
         : script
     ) || [];
 
-    StorageManager.updateProject(project.id, {
-      ...project,
+    // Save the complete updated project with both issues and scripts
+    const finalProject = {
+      ...updatedProject,
       importedScripts: updatedScripts
-    });
+    };
+
+    StorageManager.updateProject(project.id, finalProject);
 
     toast({
       title: "Success",
