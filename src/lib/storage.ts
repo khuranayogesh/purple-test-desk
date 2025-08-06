@@ -111,6 +111,10 @@ export class StorageManager {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
       console.error('Error saving data:', error);
+      if (error instanceof Error && error.name === 'QuotaExceededError') {
+        throw new Error('Storage quota exceeded. Please clear some data or use fewer/smaller screenshots.');
+      }
+      throw error;
     }
   }
 

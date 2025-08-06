@@ -86,29 +86,37 @@ export default function ImportScriptsPage() {
   const handleImportScript = (script: Script) => {
     if (!project) return;
 
-    // Create imported script with default status
-    const importedScript: ImportedScript = {
-      ...script,
-      status: 'Pending',
-      linkedIssues: []
-    };
+    try {
+      // Create imported script with default status
+      const importedScript: ImportedScript = {
+        ...script,
+        status: 'Pending',
+        linkedIssues: []
+      };
 
-    // Update project with imported script
-    const updatedProject = {
-      ...project,
-      importedScripts: [...(project.importedScripts || []), importedScript]
-    };
+      // Update project with imported script
+      const updatedProject = {
+        ...project,
+        importedScripts: [...(project.importedScripts || []), importedScript]
+      };
 
-    StorageManager.updateProject(project.id, updatedProject);
-    
-    toast({
-      title: "Success",
-      description: `Script "${script.scriptId}" imported successfully`
-    });
+      StorageManager.updateProject(project.id, updatedProject);
+      
+      toast({
+        title: "Success",
+        description: `Script "${script.scriptId}" imported successfully`
+      });
 
-    // Update local state
-    setImportedScriptIds(prev => new Set([...prev, script.id]));
-    setProject(updatedProject);
+      // Update local state
+      setImportedScriptIds(prev => new Set([...prev, script.id]));
+      setProject(updatedProject);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to import script",
+        variant: "destructive"
+      });
+    }
   };
 
   const folderOptions = getFolderOptions();
