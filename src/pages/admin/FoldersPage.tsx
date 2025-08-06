@@ -14,7 +14,7 @@ export default function FoldersPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFolder, setEditingFolder] = useState<Folder | null>(null);
   const [folderName, setFolderName] = useState('');
-  const [parentId, setParentId] = useState<string>('');
+  const [parentId, setParentId] = useState<string>('none');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function FoldersPage() {
     if (editingFolder) {
       StorageManager.updateFolder(editingFolder.id, {
         name: folderName,
-        parentId: parentId || undefined
+        parentId: parentId === 'none' ? undefined : parentId || undefined
       });
       toast({
         title: "Success",
@@ -49,7 +49,7 @@ export default function FoldersPage() {
       const newFolder: Folder = {
         id: StorageManager.generateId(),
         name: folderName,
-        parentId: parentId || undefined
+        parentId: parentId === 'none' ? undefined : parentId || undefined
       };
       StorageManager.addFolder(newFolder);
       toast({
@@ -66,7 +66,7 @@ export default function FoldersPage() {
   const handleEditFolder = (folder: Folder) => {
     setEditingFolder(folder);
     setFolderName(folder.name);
-    setParentId(folder.parentId || '');
+    setParentId(folder.parentId || 'none');
     setDialogOpen(true);
   };
 
@@ -84,7 +84,7 @@ export default function FoldersPage() {
   const resetForm = () => {
     setEditingFolder(null);
     setFolderName('');
-    setParentId('');
+    setParentId('none');
   };
 
   const getParentFolders = () => {
@@ -139,7 +139,7 @@ export default function FoldersPage() {
                     <SelectValue placeholder="Select parent folder" />
                   </SelectTrigger>
                   <SelectContent className="bg-background border-border">
-                    <SelectItem value="">No Parent (Root Folder)</SelectItem>
+                    <SelectItem value="none">No Parent (Root Folder)</SelectItem>
                     {getParentFolders().map((folder) => (
                       <SelectItem key={folder.id} value={folder.id}>
                         {folder.name}
