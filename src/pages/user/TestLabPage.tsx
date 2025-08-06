@@ -702,11 +702,17 @@ export default function TestLabPage() {
                         <SelectValue placeholder="Select existing issue (optional)" />
                       </SelectTrigger>
                       <SelectContent className="bg-background border-border">
-                        {project?.issues?.filter(i => i.status !== 'Fixed').map((issue) => (
-                          <SelectItem key={issue.id} value={issue.id}>
-                            Issue #{issue.issueNumber}: {issue.title}
+                        {project?.issues?.length === 0 ? (
+                          <SelectItem value="no-issues" disabled>
+                            No issues available in Issue Log
                           </SelectItem>
-                        ))}
+                        ) : (
+                          project?.issues?.filter(i => i.status !== 'Fixed').map((issue) => (
+                            <SelectItem key={issue.id} value={issue.id}>
+                              Issue #{issue.issueNumber}: {issue.title}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   )}
