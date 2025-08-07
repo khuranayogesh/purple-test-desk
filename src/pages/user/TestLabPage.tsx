@@ -571,11 +571,76 @@ export default function TestLabPage() {
                 </div>
               )}
 
-              {/* Script Information Summary */}
-              <div className="p-4 bg-secondary rounded-lg">
-                <h4 className="font-medium mb-2">Script Summary:</h4>
-                <p className="text-sm text-muted-foreground mb-1">{selectedScript.shortDescription}</p>
-                <p className="text-xs text-muted-foreground">📁 {selectedScript.folderPath}</p>
+              {/* Complete Script Information */}
+              <div className="border border-border rounded-lg p-4 bg-secondary/10">
+                <h3 className="text-lg font-semibold mb-4">📋 Script Information</h3>
+                
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <Label className="font-medium">Script ID:</Label>
+                    <p className="text-sm text-muted-foreground">{selectedScript.scriptId}</p>
+                  </div>
+                  <div>
+                    <Label className="font-medium">Test Environment:</Label>
+                    <Badge variant="outline">{selectedScript.testEnvironment}</Badge>
+                  </div>
+                  <div>
+                    <Label className="font-medium">Status:</Label>
+                    <Badge className={getStatusColor(selectedScript.status)}>
+                      {selectedScript.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <Label className="font-medium">Folder Path:</Label>
+                    <p className="text-sm text-muted-foreground">📁 {selectedScript.folderPath}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <Label className="font-medium">Short Description:</Label>
+                    <p className="text-sm text-muted-foreground">{selectedScript.shortDescription}</p>
+                  </div>
+
+                  {selectedScript.purpose && (
+                    <div>
+                      <Label className="font-medium">Purpose:</Label>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedScript.purpose}</p>
+                    </div>
+                  )}
+
+                  {selectedScript.assumptions.length > 0 && (
+                    <div>
+                      <Label className="font-medium">Assumptions:</Label>
+                      <ul className="list-disc list-inside space-y-1 mt-1">
+                        {selectedScript.assumptions.map((assumption, index) => (
+                          <li key={index} className="text-sm text-muted-foreground">{assumption}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {selectedScript.expectedResults && (
+                    <div>
+                      <Label className="font-medium">Expected Results:</Label>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedScript.expectedResults}</p>
+                    </div>
+                  )}
+
+                  {selectedScript.scriptDetails && (
+                    <div>
+                      <Label className="font-medium">Script Details:</Label>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedScript.scriptDetails}</p>
+                    </div>
+                  )}
+
+                  {selectedScript.remarks && (
+                    <div>
+                      <Label className="font-medium">Previous Remarks:</Label>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedScript.remarks}</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Original Screenshots */}
