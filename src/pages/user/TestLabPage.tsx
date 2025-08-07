@@ -150,6 +150,21 @@ export default function TestLabPage() {
         issues: [...(project.issues || []), newIssue]
       };
       issueId = newIssue.id;
+    } else if (selectedIssue) {
+      // Link to existing issue - update the issue's linkedScripts array
+      const updatedIssues = project.issues?.map(issue =>
+        issue.id === selectedIssue
+          ? {
+              ...issue,
+              linkedScripts: [...new Set([...issue.linkedScripts, selectedScript.id])]
+            }
+          : issue
+      ) || [];
+
+      updatedProject = {
+        ...project,
+        issues: updatedIssues
+      };
     }
 
     // Update script with issue
