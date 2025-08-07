@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, LogOut, FolderPlus, FileText, List, Briefcase, Plus, Upload, Clipboard, AlertTriangle, Settings } from 'lucide-react';
+import { Menu, LogOut, FolderPlus, FileText, List, Briefcase, Plus, Upload, Clipboard, AlertTriangle, Settings, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StorageManager, User } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
@@ -9,6 +9,7 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<any[]>([]);
+  const [expandedProjects, setExpandedProjects] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -38,6 +39,13 @@ export default function Layout() {
 
   const isActivePath = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
+
+  const toggleProjectExpansion = (projectId: string) => {
+    setExpandedProjects(prev => ({
+      ...prev,
+      [projectId]: !prev[projectId]
+    }));
   };
 
   if (!currentUser) return null;
@@ -132,52 +140,74 @@ export default function Layout() {
                   {projects.length > 0 && (
                     <div className="pt-4">
                       <h3 className="text-sm font-medium text-muted-foreground mb-2 px-2">Projects</h3>
-                      {projects.map((project) => (
-                        <div key={project.id} className="ml-4 space-y-1">
-                          <div className="text-sm font-medium text-foreground px-2 py-1">
-                            {project.name}
+                      {projects.map((project) => {
+                        const isExpanded = expandedProjects[project.id] ?? false;
+                        const hasActiveSubRoute = isActivePath(`/user/project/${project.id}`);
+                        
+                        return (
+                          <div key={project.id} className="space-y-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full justify-between text-sm font-medium hover:bg-secondary"
+                              onClick={() => toggleProjectExpansion(project.id)}
+                            >
+                              <span className="flex items-center">
+                                {isExpanded ? (
+                                  <ChevronDown className="h-3 w-3 mr-2" />
+                                ) : (
+                                  <ChevronRight className="h-3 w-3 mr-2" />
+                                )}
+                                {project.name}
+                              </span>
+                            </Button>
+                            
+                            {isExpanded && (
+                              <div className="ml-6 space-y-1">
+                                <Button
+                                  variant={isActivePath(`/user/project/${project.id}/import`) ? "default" : "ghost"}
+                                  size="sm"
+                                  className={`w-full justify-start text-xs ${
+                                    isActivePath(`/user/project/${project.id}/import`) 
+                                      ? "bg-primary text-primary-foreground" 
+                                      : "hover:bg-secondary"
+                                  }`}
+                                  onClick={() => navigate(`/user/project/${project.id}/import`)}
+                                >
+                                  <Upload className="h-3 w-3 mr-2" />
+                                  Import Scripts
+                                </Button>
+                                <Button
+                                  variant={isActivePath(`/user/project/${project.id}/test-lab`) ? "default" : "ghost"}
+                                  size="sm"
+                                  className={`w-full justify-start text-xs ${
+                                    isActivePath(`/user/project/${project.id}/test-lab`) 
+                                      ? "bg-primary text-primary-foreground" 
+                                      : "hover:bg-secondary"
+                                  }`}
+                                  onClick={() => navigate(`/user/project/${project.id}/test-lab`)}
+                                >
+                                  <Clipboard className="h-3 w-3 mr-2" />
+                                  Test Lab
+                                </Button>
+                                <Button
+                                  variant={isActivePath(`/user/project/${project.id}/issues`) ? "default" : "ghost"}
+                                  size="sm"
+                                  className={`w-full justify-start text-xs ${
+                                    isActivePath(`/user/project/${project.id}/issues`) 
+                                      ? "bg-primary text-primary-foreground" 
+                                      : "hover:bg-secondary"
+                                  }`}
+                                  onClick={() => navigate(`/user/project/${project.id}/issues`)}
+                                >
+                                  <AlertTriangle className="h-3 w-3 mr-2" />
+                                  Issue Log
+                                </Button>
+                              </div>
+                            )}
                           </div>
-                          <Button
-                            variant={isActivePath(`/user/project/${project.id}/import`) ? "default" : "ghost"}
-                            size="sm"
-                            className={`w-full justify-start text-xs ${
-                              isActivePath(`/user/project/${project.id}/import`) 
-                                ? "bg-primary text-primary-foreground" 
-                                : "hover:bg-secondary"
-                            }`}
-                            onClick={() => navigate(`/user/project/${project.id}/import`)}
-                          >
-                            <Upload className="h-3 w-3 mr-2" />
-                            Import Scripts
-                          </Button>
-                          <Button
-                            variant={isActivePath(`/user/project/${project.id}/test-lab`) ? "default" : "ghost"}
-                            size="sm"
-                            className={`w-full justify-start text-xs ${
-                              isActivePath(`/user/project/${project.id}/test-lab`) 
-                                ? "bg-primary text-primary-foreground" 
-                                : "hover:bg-secondary"
-                            }`}
-                            onClick={() => navigate(`/user/project/${project.id}/test-lab`)}
-                          >
-                            <Clipboard className="h-3 w-3 mr-2" />
-                            Test Lab
-                          </Button>
-                          <Button
-                            variant={isActivePath(`/user/project/${project.id}/issues`) ? "default" : "ghost"}
-                            size="sm"
-                            className={`w-full justify-start text-xs ${
-                              isActivePath(`/user/project/${project.id}/issues`) 
-                                ? "bg-primary text-primary-foreground" 
-                                : "hover:bg-secondary"
-                            }`}
-                            onClick={() => navigate(`/user/project/${project.id}/issues`)}
-                          >
-                            <AlertTriangle className="h-3 w-3 mr-2" />
-                            Issue Log
-                          </Button>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </>
