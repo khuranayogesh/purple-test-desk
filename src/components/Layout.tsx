@@ -38,21 +38,7 @@ export default function Layout() {
   };
 
   const isActivePath = (path: string) => {
-    // Check for exact match first
-    if (location.pathname === path) return true;
-    
-    // For paths that can have sub-routes, check if current path starts with the path + '/'
-    // but exclude cases where another path starts with the same prefix
-    const pathSegments = path.split('/');
-    const currentSegments = location.pathname.split('/');
-    
-    // If current path has more segments than the check path, it could be a sub-route
-    if (currentSegments.length > pathSegments.length) {
-      // Check if all segments of the check path match the beginning of current path
-      return pathSegments.every((segment, index) => segment === currentSegments[index]);
-    }
-    
-    return false;
+    return location.pathname === path;
   };
 
   const toggleProjectExpansion = (projectId: string) => {
