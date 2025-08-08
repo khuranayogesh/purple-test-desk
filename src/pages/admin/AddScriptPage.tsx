@@ -25,6 +25,9 @@ export default function AddScriptPage() {
   const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
   const [currentScreenshot, setCurrentScreenshot] = useState<Screenshot | null>(null);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const [tableDialogOpen, setTableDialogOpen] = useState(false);
+  const [tableRows, setTableRows] = useState('3');
+  const [tableColumns, setTableColumns] = useState('3');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -97,31 +100,51 @@ export default function AddScriptPage() {
   };
 
   const handleInsertTable = () => {
-    const tableTemplate = `
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <thead>
-    <tr>
-      <th style="padding: 8px; text-align: left;">Header 1</th>
-      <th style="padding: 8px; text-align: left;">Header 2</th>
-      <th style="padding: 8px; text-align: left;">Header 3</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="padding: 8px;">Cell 1</td>
-      <td style="padding: 8px;">Cell 2</td>
-      <td style="padding: 8px;">Cell 3</td>
-    </tr>
-    <tr>
-      <td style="padding: 8px;">Cell 4</td>
-      <td style="padding: 8px;">Cell 5</td>
-      <td style="padding: 8px;">Cell 6</td>
-    </tr>
-  </tbody>
-</table>
+    setTableDialogOpen(true);
+  };
 
-`;
-    setScriptDetails(prev => prev + tableTemplate);
+  const handleCreateTable = () => {
+    const rows = parseInt(tableRows);
+    const cols = parseInt(tableColumns);
+    
+    if (rows < 1 || cols < 1 || rows > 20 || cols > 10) {
+      toast({
+        title: "Invalid Input",
+        description: "Please enter valid numbers (Rows: 1-20, Columns: 1-10)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    let tableHtml = '\n<table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">\n';
+    
+    // Create header row
+    tableHtml += '  <thead>\n    <tr>\n';
+    for (let col = 0; col < cols; col++) {
+      tableHtml += `      <th style="padding: 8px; text-align: left; background-color: #f5f5f5;">Header ${col + 1}</th>\n`;
+    }
+    tableHtml += '    </tr>\n  </thead>\n';
+    
+    // Create body rows
+    tableHtml += '  <tbody>\n';
+    for (let row = 0; row < rows - 1; row++) {
+      tableHtml += '    <tr>\n';
+      for (let col = 0; col < cols; col++) {
+        tableHtml += '      <td style="padding: 8px;"></td>\n';
+      }
+      tableHtml += '    </tr>\n';
+    }
+    tableHtml += '  </tbody>\n</table>\n\n';
+
+    setScriptDetails(prev => prev + tableHtml);
+    setTableDialogOpen(false);
+    setTableRows('3');
+    setTableColumns('3');
+    
+    toast({
+      title: "Table Inserted",
+      description: `${rows}x${cols} table added to script details`
+    });
   };
 
   const handleSaveScript = () => {
@@ -459,6 +482,57 @@ export default function AddScriptPage() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Table Creation Dialog */}
+      <Dialog open={tableDialogOpen} onOpenChange={setTableDialogOpen}>
+        <DialogContent className="max-w-md bg-background">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Table className="h-5 w-5" />
+              Insert Table
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="tableRows">Rows</Label>
+                <Input
+                  id="tableRows"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={tableRows}
+                  onChange={(e) => setTableRows(e.target.value)}
+                  className="bg-background"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tableColumns">Columns</Label>
+                <Input
+                  id="tableColumns"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={tableColumns}
+                  onChange={(e) => setTableColumns(e.target.value)}
+                  className="bg-background"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setTableDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleCreateTable}>
+                Insert Table
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
