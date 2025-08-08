@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { StorageManager, Folder, Script, Screenshot } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, Upload, X, Eye, Plus, Trash2 } from 'lucide-react';
+import { FileText, Upload, X, Eye, Plus, Trash2, Table } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function AddScriptPage() {
@@ -94,6 +94,34 @@ export default function AddScriptPage() {
   const handleViewScreenshot = (screenshot: Screenshot) => {
     setCurrentScreenshot(screenshot);
     setImagePreviewOpen(true);
+  };
+
+  const handleInsertTable = () => {
+    const tableTemplate = `
+<table border="1" style="border-collapse: collapse; width: 100%;">
+  <thead>
+    <tr>
+      <th style="padding: 8px; text-align: left;">Header 1</th>
+      <th style="padding: 8px; text-align: left;">Header 2</th>
+      <th style="padding: 8px; text-align: left;">Header 3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 8px;">Cell 1</td>
+      <td style="padding: 8px;">Cell 2</td>
+      <td style="padding: 8px;">Cell 3</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px;">Cell 4</td>
+      <td style="padding: 8px;">Cell 5</td>
+      <td style="padding: 8px;">Cell 6</td>
+    </tr>
+  </tbody>
+</table>
+
+`;
+    setScriptDetails(prev => prev + tableTemplate);
   };
 
   const handleSaveScript = () => {
@@ -309,7 +337,18 @@ export default function AddScriptPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="scriptDetails">Script Details</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="scriptDetails">Script Details</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleInsertTable}
+                >
+                  <Table className="h-4 w-4 mr-1" />
+                  Insert Table
+                </Button>
+              </div>
               <Textarea
                 id="scriptDetails"
                 value={scriptDetails}
