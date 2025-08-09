@@ -10,7 +10,7 @@ import { StorageManager, Folder, Script, Screenshot } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Upload, X, Eye, Plus, Trash2, Table } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { TableEditor } from '@/components/TableEditor';
+import { RichTextEditor } from '@/components/RichTextEditor';
 
 
 export default function AddScriptPage() {
@@ -24,13 +24,9 @@ export default function AddScriptPage() {
   const [assumptions, setAssumptions] = useState<string[]>(['']);
   const [expectedResults, setExpectedResults] = useState('');
   const [scriptDetails, setScriptDetails] = useState('');
-  const [inlineTables, setInlineTables] = useState<{ id: string; data: string[][]; position: number }[]>([]);
   const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
   const [currentScreenshot, setCurrentScreenshot] = useState<Screenshot | null>(null);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
-  const [tableDialogOpen, setTableDialogOpen] = useState(false);
-  const [tableRows, setTableRows] = useState('3');
-  const [tableColumns, setTableColumns] = useState('3');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -102,54 +98,7 @@ export default function AddScriptPage() {
     setImagePreviewOpen(true);
   };
 
-  const handleInsertTable = () => {
-    setTableDialogOpen(true);
-  };
 
-  const handleCreateTable = () => {
-    const rows = parseInt(tableRows);
-    const cols = parseInt(tableColumns);
-    
-    if (rows < 1 || cols < 1 || rows > 20 || cols > 10) {
-      toast({
-        title: "Invalid Input",
-        description: "Please enter valid numbers (Rows: 1-20, Columns: 1-10)",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Create empty table data
-    const tableData = Array(rows).fill(null).map(() => Array(cols).fill(''));
-    
-    const newTable = {
-      id: StorageManager.generateId(),
-      data: tableData,
-      position: scriptDetails.length
-    };
-
-    setInlineTables(prev => [...prev, newTable]);
-    setTableDialogOpen(false);
-    setTableRows('3');
-    setTableColumns('3');
-    
-    toast({
-      title: "Table Added",
-      description: `${rows}x${cols} table added to script details`
-    });
-  };
-
-  const handleTableChange = (tableId: string, tableData: string[][]) => {
-    setInlineTables(prev => 
-      prev.map(table => 
-        table.id === tableId ? { ...table, data: tableData } : table
-      )
-    );
-  };
-
-  const handleRemoveTable = (tableId: string) => {
-    setInlineTables(prev => prev.filter(table => table.id !== tableId));
-  };
 
   const handleSaveScript = () => {
     if (!selectedSubfolder || !scriptId.trim() || !shortDescription.trim()) {
@@ -204,7 +153,6 @@ export default function AddScriptPage() {
     setAssumptions(['']);
     setExpectedResults('');
     setScriptDetails('');
-    setInlineTables([]);
     
   };
 
@@ -364,43 +312,14 @@ export default function AddScriptPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="scriptDetails">Script Details</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleInsertTable}
-                >
-                  <Table className="h-4 w-4 mr-1" />
-                  Insert Table
-                </Button>
-              </div>
-              <Textarea
-                id="scriptDetails"
+            <div className="grid w-full gap-1.5">
+              <Label htmlFor="scriptDetails">Script Details</Label>
+              <RichTextEditor
                 value={scriptDetails}
-                onChange={(e) => setScriptDetails(e.target.value)}
+                onChange={setScriptDetails}
                 placeholder="Enter detailed script information"
-                className="bg-background min-h-[150px]"
+                className="bg-background"
               />
-              
-              {/* Inline Tables */}
-              {inlineTables.length > 0 && (
-                <div className="space-y-4 border-t border-border pt-4">
-                  <h4 className="text-sm font-medium text-muted-foreground">Tables in Script Details:</h4>
-                  {inlineTables.map((table) => (
-                    <TableEditor
-                      key={table.id}
-                      initialRows={table.data.length}
-                      initialColumns={table.data[0]?.length || 0}
-                      initialData={table.data}
-                      onTableChange={(data) => handleTableChange(table.id, data)}
-                      onRemove={() => handleRemoveTable(table.id)}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
 
 
@@ -508,56 +427,6 @@ export default function AddScriptPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Table Creation Dialog */}
-      <Dialog open={tableDialogOpen} onOpenChange={setTableDialogOpen}>
-        <DialogContent className="max-w-md bg-background">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Table className="h-5 w-5" />
-              Insert Table
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="tableRows">Rows</Label>
-                <Input
-                  id="tableRows"
-                  type="number"
-                  min="1"
-                  max="20"
-                  value={tableRows}
-                  onChange={(e) => setTableRows(e.target.value)}
-                  className="bg-background"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tableColumns">Columns</Label>
-                <Input
-                  id="tableColumns"
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={tableColumns}
-                  onChange={(e) => setTableColumns(e.target.value)}
-                  className="bg-background"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setTableDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleCreateTable}>
-                Insert Table
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
