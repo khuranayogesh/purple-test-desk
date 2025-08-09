@@ -153,7 +153,7 @@ export default function AddScriptPage() {
     setAssumptions(['']);
     setExpectedResults('');
     setScriptDetails('');
-    
+    setScreenshots([]);
   };
 
   const subfolderOptions = getSubfolderOptions();
