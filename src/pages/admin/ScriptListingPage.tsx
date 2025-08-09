@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { StorageManager, Script, Screenshot, Folder } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Eye, Edit, Trash2, Search, Filter, X, Plus, Upload } from 'lucide-react';
+import { RichTextEditor } from '@/components/RichTextEditor';
 
 export default function ScriptListingPage() {
   const [scripts, setScripts] = useState<Script[]>([]);
@@ -365,7 +366,13 @@ export default function ScriptListingPage() {
               {selectedScript.scriptDetails && (
                 <div>
                   <Label className="font-medium">Script Details:</Label>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedScript.scriptDetails}</p>
+                  <div className="border border-border rounded-lg p-3 bg-background">
+                    <RichTextEditor
+                      value={selectedScript.scriptDetails}
+                      readOnly={true}
+                      className="bg-background"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -530,11 +537,10 @@ export default function ScriptListingPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="edit-scriptDetails">Script Details</Label>
-                <Textarea
-                  id="edit-scriptDetails"
+                <RichTextEditor
                   value={editForm.scriptDetails || ''}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, scriptDetails: e.target.value }))}
-                  className="bg-background min-h-[100px]"
+                  onChange={(value) => setEditForm(prev => ({ ...prev, scriptDetails: value }))}
+                  className="bg-background"
                 />
               </div>
 

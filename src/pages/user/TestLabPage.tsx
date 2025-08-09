@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { StorageManager, Project, ImportedScript, Screenshot, Issue } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import { Play, Eye, RotateCcw, CheckCircle, AlertTriangle, Upload, Save, X, Camera } from 'lucide-react';
+import { RichTextEditor } from '@/components/RichTextEditor';
 
 export default function TestLabPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -492,7 +493,13 @@ export default function TestLabPage() {
               {selectedScript.scriptDetails && (
                 <div>
                   <Label className="font-medium">Script Details:</Label>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedScript.scriptDetails}</p>
+                  <div className="border border-border rounded-lg p-3 bg-background">
+                    <RichTextEditor
+                      value={selectedScript.scriptDetails}
+                      readOnly={true}
+                      className="bg-background"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -630,7 +637,13 @@ export default function TestLabPage() {
                   {selectedScript.scriptDetails && (
                     <div>
                       <Label className="font-medium">Script Details:</Label>
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedScript.scriptDetails}</p>
+                      <div className="border border-border rounded-lg p-3 bg-background">
+                        <RichTextEditor
+                          value={selectedScript.scriptDetails}
+                          readOnly={true}
+                          className="bg-background"
+                        />
+                      </div>
                     </div>
                   )}
 
