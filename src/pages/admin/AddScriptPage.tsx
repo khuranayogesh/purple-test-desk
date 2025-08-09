@@ -10,6 +10,7 @@ import { StorageManager, Folder, Script, Screenshot } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Upload, X, Eye, Plus, Trash2, Table } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { TableEditor } from '@/components/TableEditor';
 
 
 export default function AddScriptPage() {
@@ -23,6 +24,7 @@ export default function AddScriptPage() {
   const [assumptions, setAssumptions] = useState<string[]>(['']);
   const [expectedResults, setExpectedResults] = useState('');
   const [scriptDetails, setScriptDetails] = useState('');
+  const [inlineTables, setInlineTables] = useState<{ id: string; data: string[][]; position: number }[]>([]);
   const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
   const [currentScreenshot, setCurrentScreenshot] = useState<Screenshot | null>(null);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
@@ -117,29 +119,36 @@ export default function AddScriptPage() {
       return;
     }
 
-    // Generate HTML table
-    let tableHTML = '\n<table border="1" style="border-collapse: collapse; width: 100%;">\n';
+    // Create empty table data
+    const tableData = Array(rows).fill(null).map(() => Array(cols).fill(''));
     
-    for (let i = 0; i < rows; i++) {
-      tableHTML += '  <tr>\n';
-      for (let j = 0; j < cols; j++) {
-        tableHTML += '    <td style="padding: 8px; border: 1px solid #ccc;"></td>\n';
-      }
-      tableHTML += '  </tr>\n';
-    }
-    
-    tableHTML += '</table>\n\n';
+    const newTable = {
+      id: StorageManager.generateId(),
+      data: tableData,
+      position: scriptDetails.length
+    };
 
-    // Insert table HTML into script details textarea
-    setScriptDetails(prev => prev + tableHTML);
+    setInlineTables(prev => [...prev, newTable]);
     setTableDialogOpen(false);
     setTableRows('3');
     setTableColumns('3');
     
     toast({
       title: "Table Added",
-      description: `${rows}x${cols} table inserted into script details`
+      description: `${rows}x${cols} table added to script details`
     });
+  };
+
+  const handleTableChange = (tableId: string, tableData: string[][]) => {
+    setInlineTables(prev => 
+      prev.map(table => 
+        table.id === tableId ? { ...table, data: tableData } : table
+      )
+    );
+  };
+
+  const handleRemoveTable = (tableId: string) => {
+    setInlineTables(prev => prev.filter(table => table.id !== tableId));
   };
 
   const handleSaveScript = () => {
@@ -195,7 +204,7 @@ export default function AddScriptPage() {
     setAssumptions(['']);
     setExpectedResults('');
     setScriptDetails('');
-    setScreenshots([]);
+    setInlineTables([]);
     
   };
 
@@ -375,6 +384,23 @@ export default function AddScriptPage() {
                 placeholder="Enter detailed script information"
                 className="bg-background min-h-[150px]"
               />
+              
+              {/* Inline Tables */}
+              {inlineTables.length > 0 && (
+                <div className="space-y-4 border-t border-border pt-4">
+                  <h4 className="text-sm font-medium text-muted-foreground">Tables in Script Details:</h4>
+                  {inlineTables.map((table) => (
+                    <TableEditor
+                      key={table.id}
+                      initialRows={table.data.length}
+                      initialColumns={table.data[0]?.length || 0}
+                      initialData={table.data}
+                      onTableChange={(data) => handleTableChange(table.id, data)}
+                      onRemove={() => handleRemoveTable(table.id)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
 

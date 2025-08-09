@@ -6,6 +6,7 @@ import { Trash2, Plus } from 'lucide-react';
 interface TableEditorProps {
   initialRows?: number;
   initialColumns?: number;
+  initialData?: string[][];
   onTableChange?: (tableData: string[][]) => void;
   onRemove?: () => void;
 }
@@ -13,15 +14,19 @@ interface TableEditorProps {
 export function TableEditor({ 
   initialRows = 3, 
   initialColumns = 3, 
+  initialData,
   onTableChange,
   onRemove 
 }: TableEditorProps) {
   const [tableData, setTableData] = useState<string[][]>(() => {
+    if (initialData) {
+      return initialData;
+    }
     const data: string[][] = [];
     for (let i = 0; i < initialRows; i++) {
       const row: string[] = [];
       for (let j = 0; j < initialColumns; j++) {
-        row.push(i === 0 ? `Header ${j + 1}` : '');
+        row.push('');
       }
       data.push(row);
     }
