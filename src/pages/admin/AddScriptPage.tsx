@@ -10,7 +10,7 @@ import { StorageManager, Folder, Script, Screenshot } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, Upload, X, Eye, Plus, Trash2, Table } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { TableEditor } from '@/components/TableEditor';
+
 
 export default function AddScriptPage() {
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -29,7 +29,6 @@ export default function AddScriptPage() {
   const [tableDialogOpen, setTableDialogOpen] = useState(false);
   const [tableRows, setTableRows] = useState('3');
   const [tableColumns, setTableColumns] = useState('3');
-  const [tables, setTables] = useState<{ id: string; data: string[][] }[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -118,32 +117,29 @@ export default function AddScriptPage() {
       return;
     }
 
-    const newTable = {
-      id: StorageManager.generateId(),
-      data: [] as string[][]
-    };
+    // Generate HTML table
+    let tableHTML = '\n<table border="1" style="border-collapse: collapse; width: 100%;">\n';
+    
+    for (let i = 0; i < rows; i++) {
+      tableHTML += '  <tr>\n';
+      for (let j = 0; j < cols; j++) {
+        tableHTML += '    <td style="padding: 8px; border: 1px solid #ccc;"></td>\n';
+      }
+      tableHTML += '  </tr>\n';
+    }
+    
+    tableHTML += '</table>\n\n';
 
-    setTables(prev => [...prev, newTable]);
+    // Insert table HTML into script details textarea
+    setScriptDetails(prev => prev + tableHTML);
     setTableDialogOpen(false);
     setTableRows('3');
     setTableColumns('3');
     
     toast({
       title: "Table Added",
-      description: `${rows}x${cols} table added below`
+      description: `${rows}x${cols} table inserted into script details`
     });
-  };
-
-  const handleTableChange = (tableId: string, tableData: string[][]) => {
-    setTables(prev => 
-      prev.map(table => 
-        table.id === tableId ? { ...table, data: tableData } : table
-      )
-    );
-  };
-
-  const handleRemoveTable = (tableId: string) => {
-    setTables(prev => prev.filter(table => table.id !== tableId));
   };
 
   const handleSaveScript = () => {
@@ -200,7 +196,7 @@ export default function AddScriptPage() {
     setExpectedResults('');
     setScriptDetails('');
     setScreenshots([]);
-    setTables([]);
+    
   };
 
   const subfolderOptions = getSubfolderOptions();
@@ -381,23 +377,6 @@ export default function AddScriptPage() {
               />
             </div>
 
-            {/* Tables Section */}
-            {tables.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium">Tables:</h4>
-                <div className="space-y-4">
-                  {tables.map((table) => (
-                    <TableEditor
-                      key={table.id}
-                      initialRows={parseInt(tableRows)}
-                      initialColumns={parseInt(tableColumns)}
-                      onTableChange={(data) => handleTableChange(table.id, data)}
-                      onRemove={() => handleRemoveTable(table.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div className="space-y-4">
               <Label>Screenshots</Label>
